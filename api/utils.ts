@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from 'express'
-import jwt from 'jsonwebtoken'
-import { User } from './models/userModel'
+import { NextFunction, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
+import { User } from './models/userModel';
 
 export const generateToken = (user: User) => {
   return jwt.sign(
@@ -14,26 +14,36 @@ export const generateToken = (user: User) => {
     {
       expiresIn: '30d',
     }
-  )
-}
+  );
+};
 
 export const isAuth = (req: Request, res: Response, next: NextFunction) => {
-  const { authorization } = req.headers
+  const { authorization } = req.headers;
+
   if (authorization) {
-    const token = authorization.slice(7, authorization.length) // Bearer xxxxx
-    const decode = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'somethingsecret'
-    )
-    req.user = decode as {
-      _id: string
-      name: string
-      email: string
-      isAdmin: boolean
-      token: string
+    try {
+      const token = authorization.slice(7); // Remove "Bearer "
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || 'somethingsecret'
+      ) as {
+        _id: string;
+        name: string;
+        email: string;
+        isAdmin: boolean;
+        token?: string;
+      };
+
+      req.user = {
+        ...decoded,
+        token, // attach token if needed
+      };
+
+      next();
+    } catch (err) {
+      res.status(401).json({ message: 'Invalid Token' });
     }
-    next()
   } else {
-    res.status(401).json({ message: 'No Token' })
+    res.status(401).json({ message: 'No Token' });
   }
-}
+};
