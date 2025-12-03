@@ -1,5 +1,5 @@
 export type Product = {
-  _id?: string
+  _id: string  // required
   name: string
   slug: string
   image: string
@@ -11,4 +11,3 @@ export type Product = {
   rating: number
   numReviews: number
 }
-
