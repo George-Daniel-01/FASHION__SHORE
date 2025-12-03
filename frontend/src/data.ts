@@ -1,3 +1,5 @@
+import { Product } from './types/Product'
+
 export const sampleProducts: Product[] = [
   {
     _id: '1',
