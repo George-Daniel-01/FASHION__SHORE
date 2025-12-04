@@ -2,7 +2,6 @@ import { Product } from './types/Product'
 
 export const sampleProducts: Product[] = [
   {
-    _id: '1',
     name: 'Nike Slim shirt',
     slug: 'nike-slim-shirt',
     category: 'Shirts',
@@ -15,7 +14,6 @@ export const sampleProducts: Product[] = [
     description: 'high quality shirt',
   },
   {
-    _id: '2',
     name: 'Adidas Fit Shirt',
     slug: 'adidas-fit-shirt',
     category: 'Shirts',
@@ -28,7 +26,6 @@ export const sampleProducts: Product[] = [
     description: 'high quality product',
   },
   {
-    _id: '3',
     name: 'Lacoste Free Pants',
     slug: 'lacoste-free-pants',
     category: 'Pants',
@@ -41,7 +38,6 @@ export const sampleProducts: Product[] = [
     description: 'high quality product',
   },
   {
-    _id: '4',
     name: 'Nike Slim Pant',
     slug: 'nike-slim-pant',
     category: 'Pants',

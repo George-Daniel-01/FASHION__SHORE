@@ -17,6 +17,7 @@ import {
   usePayOrderMutation,
 } from '../hooks/orderHooks'
 import { Store } from '../Store'
+import { ApiError } from '../types/ApiError'
 import { getError } from '../utils'
 
 export default function OrderPage() {
@@ -36,25 +37,22 @@ export default function OrderPage() {
   const { mutateAsync: payOrder, isLoading: loadingPay } = usePayOrderMutation()
 
   const testPayHandler = async () => {
-    try {
-      await payOrder({ orderId: orderId! })
-      refetch()
-      toast.success('Order is paid')
-    } catch (err) {
-      toast.error(getError(err))
-    }
+    await payOrder({ orderId: orderId! })
+    refetch()
+    toast.success('Order is paid')
   }
 
   const [{ isPending, isRejected }, paypalDispatch] = usePayPalScriptReducer()
+
   const { data: paypalConfig } = useGetPaypalClientIdQuery()
 
   useEffect(() => {
-    if (paypalConfig?.clientId) {
+    if (paypalConfig && paypalConfig.clientId) {
       const loadPaypalScript = async () => {
         paypalDispatch({
           type: 'resetOptions',
           value: {
-            'client-id': paypalConfig.clientId,
+            'client-id': paypalConfig!.clientId,
             currency: 'USD',
           },
         })
@@ -65,7 +63,7 @@ export default function OrderPage() {
       }
       loadPaypalScript()
     }
-  }, [paypalConfig, paypalDispatch])
+  }, [paypalConfig])
 
   const paypalbuttonTransactionProps: PayPalButtonsComponentProps = {
     style: { layout: 'vertical' },
@@ -74,11 +72,15 @@ export default function OrderPage() {
         .create({
           purchase_units: [
             {
-              amount: { value: order!.totalPrice.toString() },
+              amount: {
+                value: order!.totalPrice.toString(),
+              },
             },
           ],
         })
-        .then((orderID: string) => orderID)
+        .then((orderID: string) => {
+          return orderID
+        })
     },
     onApprove(data, actions) {
       return actions.order!.capture().then(async (details) => {
@@ -87,19 +89,19 @@ export default function OrderPage() {
           refetch()
           toast.success('Order is paid successfully')
         } catch (err) {
-          toast.error(getError(err))
+          toast.error(getError(err as ApiError))
         }
       })
     },
     onError: (err) => {
-      toast.error(getError(err))
+      toast.error(getError(err as ApiError))
     },
   }
 
   return isLoading ? (
-    <LoadingBox />
+    <LoadingBox></LoadingBox>
   ) : error ? (
-    <MessageBox variant="danger">{getError(error)}</MessageBox>
+    <MessageBox variant="danger">{getError(error as ApiError)}</MessageBox>
   ) : !order ? (
     <MessageBox variant="danger">Order Not Found</MessageBox>
   ) : (
@@ -116,8 +118,8 @@ export default function OrderPage() {
               <Card.Text>
                 <strong>Name:</strong> {order.shippingAddress.fullName} <br />
                 <strong>Address: </strong> {order.shippingAddress.address},
-                {order.shippingAddress.city}, {order.shippingAddress.postalCode},
-                {order.shippingAddress.country}
+                {order.shippingAddress.city}, {order.shippingAddress.postalCode}
+                ,{order.shippingAddress.country}
               </Card.Text>
               {order.isDelivered ? (
                 <MessageBox variant="success">
@@ -157,10 +159,12 @@ export default function OrderPage() {
                           src={item.image}
                           alt={item.name}
                           className="img-fluid rounded thumbnail"
-                        />{' '}
+                        ></img>{' '}
                         <Link to={`/product/${item.slug}`}>{item.name}</Link>
                       </Col>
-                      <Col md={3}>{item.quantity}</Col>
+                      <Col md={3}>
+                        <span>{item.quantity}</span>
+                      </Col>
                       <Col md={3}>${item.price}</Col>
                     </Row>
                   </ListGroup.Item>
@@ -169,7 +173,6 @@ export default function OrderPage() {
             </Card.Body>
           </Card>
         </Col>
-
         <Col md={4}>
           <Card className="mb-3">
             <Card.Body>
@@ -196,7 +199,7 @@ export default function OrderPage() {
                 <ListGroup.Item>
                   <Row>
                     <Col>
-                      <strong>Order Total</strong>
+                      <strong> Order Total</strong>
                     </Col>
                     <Col>
                       <strong>${order.totalPrice.toFixed(2)}</strong>
@@ -213,11 +216,13 @@ export default function OrderPage() {
                       </MessageBox>
                     ) : (
                       <div>
-                        <PayPalButtons {...paypalbuttonTransactionProps} />
+                        <PayPalButtons
+                          {...paypalbuttonTransactionProps}
+                        ></PayPalButtons>
                         <Button onClick={testPayHandler}>Test Pay</Button>
                       </div>
                     )}
-                    {loadingPay && <LoadingBox />}
+                    {loadingPay && <LoadingBox></LoadingBox>}
                   </ListGroup.Item>
                 )}
               </ListGroup>

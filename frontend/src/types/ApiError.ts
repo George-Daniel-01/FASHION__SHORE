@@ -1,8 +1,8 @@
-export interface ApiError {
+export declare type ApiError = {
   message: string
-  response?: {
-    data?: {
-      message?: string
+  response: {
+    data: {
+      message: string
     }
   }
 }

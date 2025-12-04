@@ -1,5 +1,5 @@
 export type Product = {
-  _id: string  // required
+  _id: string
   name: string
   slug: string
   image: string

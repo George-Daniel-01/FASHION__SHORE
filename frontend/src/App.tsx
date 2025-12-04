@@ -50,7 +50,7 @@ function App() {
         >
           <div className="d-flex justify-content-between align-items-center">
             <LinkContainer to="/" className="header-link">
-              <Navbar.Brand>BET HORA</Navbar.Brand>
+              <Navbar.Brand>amazona</Navbar.Brand>
             </LinkContainer>
             <Form className="flex-grow-1 d-flex me-auto">
               <InputGroup>
